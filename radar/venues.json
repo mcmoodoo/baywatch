@@ -1,0 +1,41 @@
+{
+  "_comment": "Candidate DEX-AMM deployments on the Messari standardized schema. ONE query shape (query.graphql) runs against every entry — that reuse is the standardization payoff. IDs resolved from messari/subgraphs deployment/deployment.json (the registry the Subgraph MCP searches) and probed live: uniswap-v2 3s behind head, sushiswap 15s, curve 10s; balancer-v2 kept as fixture (public deployment returns bad-indexer errors). `identity` documents what the deployment's Swap.from actually holds (VERIFIED in messari mapping code): uniswap-v2-forks + curve assign the event's sender param = the pool's direct caller (an EOA-signed bot IS itself; routed retail lumps under the router and dilutes below threshold); balancer-forks assigns event.transaction.from (the signing EOA). `schemaNotes` records per-deployment drift the fetcher auto-degrades around.",
+  "network": "mainnet",
+  "venues": [
+    {
+      "venue": "uniswap-v2",
+      "name": "Uniswap V2",
+      "network": "mainnet",
+      "subgraphId": "3onEbd9MLfXTTWAfP91yqsKr7C68VCT2ZiF7EoQiQAFj",
+      "identity": "poolCaller",
+      "schemaNotes": "deployment omits USD pricing (amountInUSD=0) — swaps still mark and confirm cross-venue reputation (venuesActive), but carry no notional weight in venue/market scores",
+      "fixture": "uniswap-v2.json"
+    },
+    {
+      "venue": "sushiswap",
+      "name": "SushiSwap",
+      "network": "mainnet",
+      "subgraphId": "77jZ9KWeyi3CJ96zkkj5s1CojKPHt6XJKjLFzsDCd8Fd",
+      "identity": "poolCaller",
+      "fixture": "sushiswap.json"
+    },
+    {
+      "venue": "curve",
+      "name": "Curve Finance",
+      "network": "mainnet",
+      "subgraphId": "3fy93eAT56UJsRCEht8iFhfi6wjHWXtZ9dnnbQmvFopF",
+      "identity": "poolCaller",
+      "schemaNotes": "deployment predates Swap.reserveAmounts — fetcher strips the field; scorer falls back to trade-implied reference mid",
+      "fixture": "curve.json"
+    },
+    {
+      "venue": "balancer-v2",
+      "name": "Balancer V2",
+      "network": "mainnet",
+      "subgraphId": "794H6CNzdGF5YfBK9nPsUgGn7EBbdJSCTjgcKPEPyFnn",
+      "identity": "txFrom",
+      "schemaNotes": "public deployment currently unservable (bad indexers, no attestation) — falls back to fixture",
+      "fixture": "balancer-v2.json"
+    }
+  ]
+}

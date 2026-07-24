@@ -1,0 +1,37 @@
+# Baywatch Radar — the ONE standardized query.
+#
+# This single query shape runs UNCHANGED against every AMM deployment on the Messari DEX-AMM
+# standardized schema (Uniswap V2/V3, SushiSwap, Curve, Balancer, PancakeSwap, ...). Adding a venue is
+# zero code — you point it at another subgraphId from venues.json. That reuse IS the standardization win.
+#
+# Every field below is verified present in schema-dex-amm.graphql (Messari). The metric is oracle-free:
+# execution price comes from amountIn/amountOut, the reference mid from reserveAmounts — USD fields are
+# used only to notional-weight. `from` is the cross-venue reputation key.
+query RadarSwaps($first: Int!, $minTs: BigInt!) {
+  swaps(
+    first: $first
+    orderBy: timestamp
+    orderDirection: desc
+    where: { timestamp_gte: $minTs }
+  ) {
+    hash
+    logIndex
+    from
+    to
+    timestamp
+    blockNumber
+    amountIn
+    amountInUSD
+    amountOut
+    amountOutUSD
+    reserveAmounts
+    tokenIn { id decimals symbol }
+    tokenOut { id decimals symbol }
+    pool {
+      id
+      name
+      inputTokens { id decimals symbol }
+      totalValueLockedUSD
+    }
+  }
+}

@@ -1,0 +1,29 @@
+[
+  {
+    "_note": "GHOST: a FRESH wallet funded directly by SHARK (confirmed toxic on Uniswap+Sushi). One-hop provenance flags it BEFORE it builds any markout history of its own.",
+    "to": "0x6111111111111111111111111111111111111161",
+    "from": "0x5111111111111111111111111111111111111151",
+    "token": "ETH",
+    "valueUsd": 5000,
+    "timestamp": 1700000600,
+    "txHash": "0xfund01"
+  },
+  {
+    "_note": "GHOST_T: funded by TOUR1, a benign tourist (not on the toxic seed) → NOT flagged. Non-toxic funders never propagate.",
+    "to": "0x6222222222222222222222222222222222222262",
+    "from": "0x7111111111111111111111111111111111111171",
+    "token": "ETH",
+    "valueUsd": 3000,
+    "timestamp": 1700000600,
+    "txHash": "0xfund02"
+  },
+  {
+    "_note": "GHOSTOLD: funded by SHARK but a year earlier → recency decay drops the inherited prior below minInheritBps → NOT flagged. Old funding is weak evidence.",
+    "to": "0x6333333333333333333333333333333333333363",
+    "from": "0x5111111111111111111111111111111111111151",
+    "token": "ETH",
+    "valueUsd": 5000,
+    "timestamp": 1600000000,
+    "txHash": "0xfund03"
+  }
+]
