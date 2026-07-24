@@ -1,0 +1,18 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = []
+# solc auto-selected per compilation unit: our stack pins 0.8.30, Uniswap v4-core pins 0.8.26.
+optimizer = true
+optimizer_runs = 700
+via_ir = true
+fs_permissions = [{ access = "read-write", path = "./agent" }, { access = "read-write", path = "./ui" }]
+
+# v4-core's Pool.sol hits a Yul stack-too-deep under via-ir; it is built for the legacy pipeline upstream.
+# Any compilation unit touching v4-core compiles legacy; the 1inch/SwapVM units keep via-ir.
+additional_compiler_profiles = [
+  { name = "v4-legacy", via_ir = false },
+]
+compilation_restrictions = [
+  { paths = "node_modules/@uniswap/v4-core/**", via_ir = false },
+]

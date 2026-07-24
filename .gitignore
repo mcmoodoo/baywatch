@@ -1,0 +1,18 @@
+node_modules/
+out/
+cache/
+broadcast/
+.env
+*.log
+*.bundle
+
+# local tooling scratch
+.claude/
+
+# Operator console — generated per run (deploy addresses, per-tick state, agent analytics)
+ui/desk.json
+ui/laststep.json
+ui/analytics.json
+
+# Radar — generated signal artifact
+radar/out/

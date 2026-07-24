@@ -1,0 +1,7 @@
+@1inch/swap-vm/=node_modules/@1inch/swap-vm/
+@1inch/aqua/=node_modules/@1inch/aqua/
+@1inch/solidity-utils/=node_modules/@1inch/solidity-utils/
+@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/
+@uniswap/v4-core/=node_modules/@uniswap/v4-core/
+solmate/=node_modules/solmate/
+forge-std/=node_modules/forge-std/src/
