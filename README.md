@@ -1,6 +1,12 @@
+<p align="center">
+  <img src="images/baywatch-logo.png" alt="Baywatch Radar logo" width="120">
+</p>
+
 # Baywatch Radar
 
 **A self-defending Aqua market maker that prices toxic flow across the entire DEX landscape.**
+
+![Baywatch Radar — toxic-flow lifeguard for AMMs](images/baywatch-cover.png)
 
 One off-chain agent runs *one standardized query* across every major AMM (on The Graph's Messari DEX-AMM
 schema), scores each venue's adverse-selection **markout**, and feeds that live signal on-chain — where custom
@@ -69,6 +75,11 @@ does — the same Graph-fetched signal defends **two venues** with zero oracle c
 | cross-venue reputation | per-taker toll (`_toxicFlowToll`) | per-swapper fee surcharge |
 | depeg regime | halt / one-directional (`_depegCircuitBreaker`) | revert / one-directional |
 
+<p align="center">
+  <img src="images/baywatch-2.png" alt="1inch Aqua · SwapVM — edge earned vs a naïve AMM on identical flow" width="49%">
+  <img src="images/baywatch-3.png" alt="Uniswap v4 · hook — toxic flow surcharged on the v4 pool by BaywatchV4Hook" width="49%">
+</p>
+
 The hook resolves the real swapper through Uniswap's **official `IMsgSender` pattern** (trusted-router
 allowlist — the Universal Router implements it), and an unknown router is simply its own identity: toll the
 router once *it* earns a reputation. Fail semantics mirror the opcodes: spread fails **safe** to the max
@@ -98,6 +109,10 @@ standardized DEX-AMM subgraph (mock) → Radar markout → ParamOracle → per-t
 **The Desk** (`ui/`) drives two real Aqua pools on identical flow — a DEFENDED order (full program) and a
 NAÏVE x*y=k order — so the divergence *is* the edge the defense earned, with the cross-protocol radar,
 market-index gauge, and toxic-address watchlist live over SSE.
+
+![The Desk — cross-protocol radar, market-toxicity gauge, and both defended venues, live](images/baywatch-1.png)
+
+![Live flow — identical trades hit both pools: sharks pay a toll, tourists trade fair](images/baywatch-4.png)
 
 ## Run it — live data (with a key)
 
