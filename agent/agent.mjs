@@ -61,6 +61,19 @@ for (let i = 0; i < sharks.length && i < confirmed.length; i++) {
 }
 console.log(`[agent] done: spread + ${bound.length} toll(s).`);
 
+// 3b. SAME signal defends the Uniswap v4 pool — one oracle, keyed by the v4 PoolId instead of the orderHash.
+let v4 = null;
+try {
+  const v = JSON.parse(readFileSync(join(ROOT, "ui/v4.json"), "utf8"));
+  const top = confirmed[0];
+  const v4Toll = top ? Math.min(MAX_TOLL_BPS, Math.round(top.toxicityBps * TOLL_PER_MARKOUT_BP)) : 0;
+  send("setParams(bytes32,uint32)", v.defendedPoolId, String(spreadBps)); // same oracle (v.oracle === desk oracle)
+  if (top) send("setToll(bytes32,address,uint32)", v.defendedPoolId, v.shark, String(v4Toll));
+  v4 = { poolId: v.defendedPoolId, hook: v.hook, shark: v.shark, spreadPct: spreadBps / 1e7, tollPct: v4Toll / 1e7,
+         boundTo: top ? top.address : null, markoutBps: top ? top.toxicityBps : 0, venuesActive: top ? top.venuesActive : 0 };
+  console.log(`[agent] v4: same signal -> Uniswap v4 pool (spread ${(spreadBps / 1e7).toFixed(2)}% + toll ${(v4Toll / 1e7).toFixed(2)}%)`);
+} catch (e) { /* v4 not deployed this run — Aqua-only */ }
+
 // 4. Cache analytics for the dashboard (decouples the UI from any live query). `takers` keeps the shape the
 //    server expects (address+tollBps+toxic); the Radar leaderboard/market fields drive the new panels.
 const analytics = {
@@ -74,6 +87,7 @@ const analytics = {
   venues: signal.venues,
   watchlist: signal.watchlist,
   takers: bound, // the bound sharks (address = desk taker, reputation = its cross-venue identity)
+  v4, // the same signal posted to the Uniswap v4 pool (null if v4 not deployed)
 };
 writeFileSync(join(ROOT, "ui/analytics.json"), JSON.stringify(analytics, null, 2));
 console.log(`[agent] wrote ui/analytics.json + radar/out/signal.json`);

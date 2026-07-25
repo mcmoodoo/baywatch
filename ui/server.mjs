@@ -65,6 +65,9 @@ let trades = [];      // recent, newest first
 let brain = { lastScan: null, flagged: [], spreadPct: 0, regime: "NORMAL", scans: 0, marketIndex: 0, marketMarkoutBps: 0, source: "mock", venues: [], watchlist: [] };
 let status = { paused: false, mode: "normal", attackTicks: 0, block: 0, step: 0, tolls: 0, trend: "up" };
 let clients = [];
+let v4 = { live: false };   // second defended venue (Uniswap v4)
+let v4cfg = null;
+let v4dir = false;
 
 const toNum = (wei) => Number(wei) / 1e18;
 const defValue = () => toNum(R.defA + R.defB);
@@ -79,7 +82,7 @@ function snapshot() {
     },
     reserves: { defA: R.defA.toString(), defB: R.defB.toString(), naiveA: R.naiveA.toString(), naiveB: R.naiveB.toString() },
     defValue: defValue(), naiveValue: naiveValue(), edge: defValue() - naiveValue(),
-    series, trades, brain, status, now: nowSec(),
+    series, trades, brain, status, v4, now: nowSec(),
   };
 }
 
@@ -153,6 +156,23 @@ async function agentRun() {
     brain.scans++;
     status.tolls = brain.flagged.length;
   }
+
+  // v4: same signal, second venue. Probe the live surcharge on the v4 pool and accumulate captured toxic flow.
+  if (v4cfg) {
+    try {
+      v4dir = !v4dir;
+      await runForge("script/FlowStepV4.s.sol", { FLOW_DIR: v4dir ? "1" : "0" });
+      const ls = readJson(join(HERE, "laststep-v4.json"));
+      if (ls && ls.touristOut && ls.sharkOut) {
+        const tOut = Number(ls.touristOut) / 1e18, sOut = Number(ls.sharkOut) / 1e18;
+        v4.lastSurchargeBps = tOut > 0 ? Math.round((tOut - sOut) / tOut * 10000) : 0;
+        v4.capturedUsd += Math.max(0, tOut - sOut);
+        v4.live = true;
+      }
+      const av4 = a && a.v4;
+      if (av4) { v4.spreadPct = av4.spreadPct; v4.tollPct = av4.tollPct; v4.boundTo = av4.boundTo; v4.markoutBps = av4.markoutBps; v4.poolId = av4.poolId; v4.hook = av4.hook; }
+    } catch (e) { /* keep last v4 state */ }
+  }
   broadcast();
 }
 
@@ -182,6 +202,18 @@ async function boot() {
   series = []; trades = []; status.step = 0;
   brain = { lastScan: null, flagged: [], spreadPct: 0, regime: "NORMAL", scans: 0, marketIndex: 0, marketMarkoutBps: 0, source: "mock", venues: [], watchlist: [] };
   console.log(`[boot] desk ready. defended=${desk.defendedOrderHash.slice(0, 10)} naive=${desk.naiveOrderHash.slice(0, 10)}`);
+
+  // Second defended venue: a real Uniswap v4 pool + hook, sharing this desk's ParamOracle. Optional.
+  try {
+    await runForge("script/DeployV4.s.sol");
+    v4cfg = readJson(join(HERE, "v4.json"));
+    v4 = { live: !!v4cfg, poolId: v4cfg?.defendedPoolId, hook: v4cfg?.hook,
+           spreadPct: 0, tollPct: 0, lastSurchargeBps: 0, capturedUsd: 0, boundTo: null, markoutBps: 0 };
+    console.log(`[boot] v4 venue ready. hook=${v4cfg?.hook?.slice(0, 10)}`);
+  } catch (e) {
+    v4 = { live: false }; v4cfg = null;
+    console.error("[boot] v4 deploy skipped:", (e.stderr || e.message || "").slice(0, 140));
+  }
 }
 
 // ---- controls ----

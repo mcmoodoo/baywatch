@@ -159,10 +159,11 @@
     </div>
   </div>
 
-  <!-- DEFENDED VENUES — the same signal defending N pools (Aqua now; v4 slots in as a second card) -->
+  <!-- DEFENDED VENUES — the same signal defending two protocols -->
+  <div class="lab" style="margin:0 0 8px 2px">one signal → two protocols defended <em style="color:var(--mut);text-transform:none;letter-spacing:0">· same ParamOracle, keyed by orderHash (Aqua) &amp; PoolId (v4)</em></div>
   <div class="grid" style="margin-bottom:14px">
     <div class="card" id="venueAqua">
-      <div class="venue-head"><span class="n">1inch Aqua · SwapVM</span><span class="s" id="aquaSpread">—</span></div>
+      <div class="venue-head"><span class="n">🛡️ 1inch Aqua · SwapVM</span><span class="s" id="aquaSpread">—</span></div>
       <div class="edge" id="edge">+$0</div>
       <div class="esub" id="esub">earned vs a naïve AMM on identical flow</div>
       <svg class="spark" id="spark" viewBox="0 0 300 56" preserveAspectRatio="none"></svg>
@@ -171,9 +172,15 @@
         <div class="pool naive"><div class="pk">naïve AMM</div><div class="pv" id="naiveV">—</div><div class="invbar"><i class="a" id="nA"></i><i class="b" id="nB"></i></div></div>
       </div>
     </div>
-    <div class="card ghost" id="venueV4">
-      <div class="venue-head"><span class="n">Uniswap v4 · hook</span><span class="s">same oracle</span></div>
-      <div class="esub">The identical signal drives a Uniswap v4 pool through <span class="mono">BaywatchV4Hook</span> — market index → dynamic fee, reputation → per-swapper surcharge. One oracle, keyed by <span class="mono">bytes32</span>, feeds both venues.</div>
+    <div class="card" id="venueV4">
+      <div class="venue-head"><span class="n">🛡️ Uniswap v4 · hook</span><span class="s" id="v4Spread">—</span></div>
+      <div class="edge" id="v4Cap">$0</div>
+      <div class="esub">toxic flow surcharged on the v4 pool by <span class="mono">BaywatchV4Hook</span></div>
+      <div class="pools" style="margin-top:14px">
+        <div class="pool def"><div class="pk">live shark surcharge</div><div class="pv" id="v4Sur">—</div></div>
+        <div class="pool naive"><div class="pk">defense</div><div class="pv" style="font-size:12px" id="v4Mode">dynamic fee</div></div>
+      </div>
+      <div class="esub mono" id="v4Pool" style="margin-top:12px;color:var(--mut);font-size:11px">waiting for v4 pool…</div>
     </div>
   </div>
 
@@ -251,6 +258,14 @@ function render(s){
   spark(s.series);
   const setInv=(a,bb,eA,eB)=>{const A=Number(a)/1e18,B=Number(bb)/1e18,t=A+B||1;$(eA).style.width=(A/t*100)+"%";$(eB).style.width=(B/t*100)+"%";};
   setInv(s.reserves.defA,s.reserves.defB,"dA","dB"); setInv(s.reserves.naiveA,s.reserves.naiveB,"nA","nB");
+  // v4 venue — second protocol defended by the same signal
+  const v=s.v4;
+  if(v&&v.live){
+    $("v4Spread").textContent=(v.spreadPct||0).toFixed(1)+"% spread";
+    $("v4Cap").textContent="$"+fmt(v.capturedUsd||0,2);
+    $("v4Sur").textContent=(v.lastSurchargeBps||0)+" bps";
+    $("v4Pool").textContent="pool "+short(v.poolId)+" · hook "+short(v.hook)+" · same ParamOracle";
+  } else if(v){ $("v4Spread").textContent="deploying…"; }
   // flow
   if(s.trades.length){
     const key=s.trades[0].block+"-"+s.trades[0].taker+"-"+s.trades[0].amountIn;
