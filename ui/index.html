@@ -31,9 +31,14 @@
   .chip.NORMAL{color:var(--good)} .chip.DEFENSIVE{color:var(--warn)} .chip.HALT{color:var(--bad);border-color:rgba(242,85,90,.4)}
   .spacer{flex:1}
   .btns{display:flex;gap:7px}
-  button{font-family:var(--mono);font-size:12px;color:var(--dim);background:var(--panel);border:1px solid var(--line);width:34px;height:32px;border-radius:8px;cursor:pointer;transition:.12s}
-  button:hover{color:var(--ink);border-color:var(--mut)}
-  button.act{color:var(--bad);border-color:rgba(242,85,90,.4)}
+  .btn{font-family:var(--sans);font-size:12.5px;font-weight:600;color:var(--ink);background:#19222f;border:1px solid #33445a;padding:8px 13px;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;line-height:1;transition:.13s}
+  .btn:hover{background:#222d3d;border-color:#4a5f7a;transform:translateY(-1px)}
+  .btn:active{transform:translateY(0)}
+  .btn .ic{font-size:14px}
+  .btn.danger{color:#ffb9bb;border-color:#5a3336;background:#241a1c}
+  .btn.danger:hover{background:#2f2022;border-color:var(--bad)}
+  .btn.on{background:rgba(224,161,58,.18);border-color:var(--warn);color:var(--warn)}
+  .btn.act{background:rgba(242,85,90,.22);border-color:var(--bad);color:#ff9a9d;box-shadow:0 0 0 1px rgba(242,85,90,.25)}
   /* grid */
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
@@ -136,9 +141,9 @@
     <span class="chip NORMAL" id="reg">NORMAL</span>
     <div class="spacer"></div>
     <div class="btns">
-      <button id="bPause" title="pause / resume flow">⏸</button>
-      <button id="bAttack" title="launch shark attack">🦈</button>
-      <button id="bDepeg" title="trip / restore circuit breaker">⚡</button>
+      <button id="bPause" class="btn" title="pause / resume flow"><span class="ic">⏸</span> Pause</button>
+      <button id="bAttack" class="btn danger" title="launch shark attack"><span class="ic">🦈</span> Attack</button>
+      <button id="bDepeg" class="btn danger" title="trip / restore circuit breaker"><span class="ic">⚡</span> Breaker</button>
     </div>
   </div>
 
@@ -232,9 +237,12 @@ function render(s){
   $("src").textContent=b.source==="gateway"?"live · gateway":"mock · fixtures";
   $("blk").textContent="block "+(s.status.block||0)+(s.status.paused?" · paused":"");
   $("reg").textContent=reg; $("reg").className="chip "+reg;
-  $("bPause").textContent=s.status.paused?"▶":"⏸";
-  $("bAttack").className=s.status.attackTicks>0?"act":"";
-  $("bDepeg").className=reg==="HALT"?"act":"";
+  $("bPause").innerHTML=s.status.paused?'<span class="ic">▶</span> Resume':'<span class="ic">⏸</span> Pause';
+  $("bPause").className="btn"+(s.status.paused?" on":"");
+  $("bAttack").innerHTML=s.status.attackTicks>0?'<span class="ic">🦈</span> Attacking '+s.status.attackTicks:'<span class="ic">🦈</span> Attack';
+  $("bAttack").className="btn danger"+(s.status.attackTicks>0?" act":"");
+  $("bDepeg").innerHTML=reg==="HALT"?'<span class="ic">⚡</span> Restore':'<span class="ic">⚡</span> Breaker';
+  $("bDepeg").className="btn danger"+(reg==="HALT"?" act":"");
   // gauge + spread
   setGauge(b.marketIndex||0);
   const sp=(b.spreadPct||0).toFixed(1)+"%";
@@ -282,9 +290,9 @@ function render(s){
 }
 
 const post=(p)=>fetch(p,{method:"POST"}).catch(()=>{});
-$("bPause").onclick=()=>post($("bPause").textContent==="▶"?"/api/resume":"/api/pause");
+$("bPause").onclick=()=>post($("bPause").textContent.includes("Resume")?"/api/resume":"/api/pause");
 $("bAttack").onclick=()=>post("/api/attack");
-$("bDepeg").onclick=()=>post($("bDepeg").className==="act"?"/api/restore":"/api/depeg");
+$("bDepeg").onclick=()=>post($("bDepeg").textContent.includes("Restore")?"/api/restore":"/api/depeg");
 
 let es,last=0;
 const apply=(d)=>{try{render(d);last=Date.now();}catch(x){console.error("render",x);}};
