@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Baywatch · brand kit</title>
+<style>
+  :root{--bg:#0a0d12;--panel:#10151d;--ink:#e8edf2;--dim:#8a97a6;--line:#1c2530;--accent:#3ad0c0;--bad:#f2555a}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-sans-serif,system-ui,Arial;padding:28px;max-width:1180px;margin:0 auto}
+  h1{font-size:20px;margin:0 0 4px}
+  p{color:var(--dim);font-size:13px;line-height:1.6}
+  .row{display:flex;gap:24px;flex-wrap:wrap;margin-top:22px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .card h2{font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--dim);margin:0 0 12px}
+  canvas{background:#000;border-radius:10px;display:block;max-width:100%;height:auto}
+  .btn{margin-top:14px;font-size:13px;font-weight:600;color:var(--ink);background:#19222f;border:1px solid #33445a;padding:9px 15px;border-radius:9px;cursor:pointer}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+  .note{margin-top:22px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  code{font-family:ui-monospace,monospace;color:var(--accent)}
+</style>
+</head>
+<body>
+  <h1>🏖️ Baywatch — brand kit</h1>
+  <p>Rendered in your browser. Click <b>Download</b> under each — the PNG saves to your machine at the exact size ETHGlobal wants.</p>
+  <div class="row">
+    <div class="card">
+      <h2>Logo · 512×512</h2>
+      <canvas id="logo" width="512" height="512" style="width:300px"></canvas>
+      <button class="btn" onclick="dl('logo','logo.png')">⬇ Download logo.png</button>
+    </div>
+    <div class="card">
+      <h2>Cover · 1280×720 (16:9)</h2>
+      <canvas id="cover" width="1280" height="720" style="width:560px"></canvas>
+      <button class="btn" onclick="dl('cover','cover.png')">⬇ Download cover.png</button>
+    </div>
+  </div>
+  <div class="note">
+    <p style="margin:0"><b>Screenshots (min 3):</b> capture these from the live Desk at <code>http://localhost:5170</code> (press 🦈 Attack first so it's lively):<br>
+    1) the whole Desk mid-attack · 2) the SIGNAL card (gauge + venue leaderboard + watchlist) · 3) the two venue cards (Aqua edge + Uniswap v4 surcharge).<br>
+    Bonus: the <code>node radar/signal.mjs</code> terminal showing real 0x… addresses (proves live data).</p>
+  </div>
+
+<script>
+function roundRect(c,x,y,w,h,r){ c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r); c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); }
+
+function radar(c,cx,cy,r0,r1,step,alpha){ c.save(); c.strokeStyle="rgba(58,208,192,"+alpha+")"; c.lineWidth=2;
+  for(let r=r0;r<=r1;r+=step){ c.beginPath(); c.arc(cx,cy,r,-Math.PI*0.95,-Math.PI*0.05); c.stroke(); } c.restore(); }
+
+function can(c,w,h){ // rescue can centered at 0,0
+  const x=-w/2,y=-h/2,r=h/2;
+  c.fillStyle="#e8393e"; roundRect(c,x,y,w,h,r); c.fill();
+  c.lineWidth=Math.max(3,h*0.05); c.strokeStyle="#a82529"; roundRect(c,x,y,w,h,r); c.stroke();
+  c.fillStyle="#a82529";
+  c.beginPath(); c.arc(x+r,0,r*0.42,0,7); c.fill();
+  c.beginPath(); c.arc(x+w-r,0,r*0.42,0,7); c.fill();
+  c.strokeStyle="rgba(255,255,255,.35)"; c.lineWidth=Math.max(2,h*0.045); c.beginPath(); c.moveTo(x+r*1.1,-h*0.18); c.lineTo(x+w-r*1.1,-h*0.18); c.stroke();
+}
+
+function gauge(c,cx,cy,r,pct){ const S=-135,SW=270;
+  const P=(d)=>[cx+r*Math.cos((d-90)*Math.PI/180),cy+r*Math.sin((d-90)*Math.PI/180)];
+  const arc=(a0,a1,col,lw)=>{c.beginPath();const s=P(a0);c.moveTo(s[0],s[1]);
+    // step along the arc for a smooth path
+    for(let a=a0;a<=a1;a+=2){const p=P(a);c.lineTo(p[0],p[1]);} c.strokeStyle=col;c.lineWidth=lw;c.lineCap="round";c.stroke();};
+  arc(S,S+SW,"#1c2530",22);
+  const col=pct>60?"#f2555a":pct>25?"#e0a13a":"#43c463";
+  arc(S,S+SW*pct/100,col,22);
+  c.fillStyle=col;c.font="800 64px ui-monospace,monospace";c.textAlign="center";c.textBaseline="middle";c.fillText(String(pct),cx,cy-4);
+  c.fillStyle="#8a97a6";c.font="600 16px ui-sans-serif,system-ui,Arial";c.fillText("market toxicity",cx,cy+34);
+}
+
+function drawLogo(){ const c=document.getElementById("logo").getContext("2d"),W=512,H=512;
+  const g=c.createRadialGradient(W*0.4,H*0.32,30,W*0.5,H*0.5,W*0.8); g.addColorStop(0,"#13273a"); g.addColorStop(1,"#0a0d12");
+  c.fillStyle=g; c.fillRect(0,0,W,H);
+  radar(c,W/2,H*0.46,80,250,42,0.12);
+  c.save(); c.translate(W/2,H*0.42); c.rotate(-18*Math.PI/180); can(c,300,116); c.restore();
+  c.fillStyle="#e8edf2"; c.font="800 58px ui-sans-serif,system-ui,Arial"; c.textAlign="center"; c.textBaseline="alphabetic";
+  c.fillText("BAYWATCH",W/2,H-70);
+  c.fillStyle="#3ad0c0"; c.font="600 20px ui-monospace,monospace"; c.fillText("toxic-flow lifeguard",W/2,H-40);
+}
+
+function drawCover(){ const c=document.getElementById("cover").getContext("2d"),W=1280,H=720;
+  const g=c.createLinearGradient(0,0,W,H); g.addColorStop(0,"#0f1c2b"); g.addColorStop(1,"#0a0d12");
+  c.fillStyle=g; c.fillRect(0,0,W,H);
+  radar(c,W*0.76,H*0.5,70,540,64,0.09);
+  gauge(c,W*0.76,H*0.46,150,88);
+  c.save(); c.translate(W*0.76,H*0.78); c.rotate(-16*Math.PI/180); can(c,230,80); c.restore();
+  c.textAlign="left"; c.textBaseline="alphabetic";
+  c.fillStyle="#e8edf2"; c.font="800 104px ui-sans-serif,system-ui,Arial"; c.fillText("BAYWATCH",78,320);
+  c.fillStyle="#f2555a"; c.beginPath(); c.arc(78+ c.measureText("BAYWATCH").width + 22, 306, 12, 0, 7); c.fill();
+  c.fillStyle="#c3d0dd"; c.font="400 34px ui-sans-serif,system-ui,Arial"; c.fillText("The market maker that sees the shark coming.",80,382);
+  c.fillStyle="#7d8da0"; c.font="600 23px ui-monospace,monospace"; c.fillText("cross-protocol toxic-flow radar",80,452);
+  c.fillStyle="#3ad0c0"; c.font="600 23px ui-monospace,monospace"; c.fillText("The Graph  →  1inch Aqua  +  Uniswap v4",80,486);
+}
+
+function dl(id,name){ document.getElementById(id).toBlob(b=>{ const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); },"image/png"); }
+
+drawLogo(); drawCover();
+</script>
+</body>
+</html>

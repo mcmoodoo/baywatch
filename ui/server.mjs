@@ -236,6 +236,8 @@ createServer(async (req, res) => {
   const url = req.url.split("?")[0];
   try {
     if (url === "/" || url === "/index.html") return send(res, 200, readFileSync(join(HERE, "index.html"), "utf8"), "text/html; charset=utf-8");
+    if (url === "/brand" || url === "/brand/" || url === "/brand/kit.html")
+      return send(res, 200, readFileSync(join(HERE, "brand", "kit.html"), "utf8"), "text/html; charset=utf-8");
     if (url === "/api/state") return send(res, 200, snapshot());
     if (url === "/api/stream") {
       res.writeHead(200, { "content-type": "text/event-stream", "cache-control": "no-cache", connection: "keep-alive", "access-control-allow-origin": "*" });
