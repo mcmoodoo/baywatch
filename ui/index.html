@@ -3,348 +3,243 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Baywatch Radar · The Desk</title>
+<title>Baywatch · The Desk</title>
 <style>
   :root{
-    --bg:#0a0e14; --panel:#111823; --panel2:#0d141d; --line:#1e2a3a; --line2:#26364a;
-    --ink:#e6edf3; --dim:#8397b0; --mut:#4d5b70;
-    --green:#3fb950; --red:#f85149; --amber:#d29922; --blue:#58a6ff; --cyan:#39d3c3; --purple:#bc8cff;
-    --mono:"SFMono-Regular",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    --bg:#0a0d12; --panel:#10151d; --line:#1c2530; --ink:#e8edf2; --dim:#8a97a6; --mut:#4a5666;
+    --good:#43c463; --bad:#f2555a; --warn:#e0a13a; --live:#3ad0c0;
+    --mono:ui-monospace,"SFMono-Regular","JetBrains Mono",Menlo,monospace;
     --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:radial-gradient(1300px 700px at 75% -15%,#11202f 0%,var(--bg) 55%);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
-  .wrap{max-width:1240px;margin:0 auto;padding:18px 20px 60px}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:20px 22px 64px}
   .mono{font-family:var(--mono)}
   /* header */
-  .top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
-  .brand h1{margin:0;font-size:19px;letter-spacing:.4px}
-  .brand h1 b{color:var(--cyan)}
-  .brand span{color:var(--dim);font-size:12px}
+  .top{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+  .brand{font-size:16px;font-weight:600;letter-spacing:.3px}
+  .brand b{color:var(--live);font-weight:600}
+  .meta{font-family:var(--mono);font-size:12px;color:var(--dim);display:flex;align-items:center;gap:8px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--mut)}
+  .dot.on{background:var(--live);box-shadow:0 0 0 0 rgba(58,208,192,.5);animation:p 2s infinite}
+  @keyframes p{70%{box-shadow:0 0 0 6px rgba(58,208,192,0)}}
+  .chip{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.5px;padding:3px 9px;border-radius:6px;border:1px solid var(--line)}
+  .chip.NORMAL{color:var(--good)} .chip.DEFENSIVE{color:var(--warn)} .chip.HALT{color:var(--bad);border-color:rgba(242,85,90,.4)}
   .spacer{flex:1}
-  .pill{font-family:var(--mono);font-size:12px;padding:6px 11px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--dim);display:flex;align-items:center;gap:7px}
-  .dot{width:8px;height:8px;border-radius:50%;background:var(--mut)}
-  .dot.live{background:var(--green);animation:pulse 1.8s infinite}
-  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(63,185,80,.5)}70%{box-shadow:0 0 0 7px rgba(63,185,80,0)}100%{box-shadow:0 0 0 0 rgba(63,185,80,0)}}
-  .reg{font-weight:700;letter-spacing:.5px}
-  .reg.NORMAL{color:var(--green)} .reg.DEFENSIVE{color:var(--amber)} .reg.HALT{color:var(--red)}
-  button{font-family:var(--mono);font-size:12px;color:var(--ink);background:var(--panel);border:1px solid var(--line2);padding:7px 12px;border-radius:8px;cursor:pointer;transition:.13s}
-  button:hover{border-color:var(--cyan);color:var(--cyan)}
-  button.warn:hover{border-color:var(--amber);color:var(--amber)}
-  button.danger:hover{border-color:var(--red);color:var(--red)}
-  button.on{border-color:var(--amber);color:var(--amber)}
-  /* layout */
-  .grid{display:grid;grid-template-columns:1.55fr 1fr;gap:14px}
-  .card{background:linear-gradient(180deg,var(--panel) 0%,var(--panel2) 100%);border:1px solid var(--line);border-radius:14px;padding:16px}
-  .card h2{margin:0 0 12px;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--dim);font-weight:600}
-  .card h2 em{color:var(--mut);font-style:normal;text-transform:none;letter-spacing:0;font-size:11px}
+  .btns{display:flex;gap:7px}
+  button{font-family:var(--mono);font-size:12px;color:var(--dim);background:var(--panel);border:1px solid var(--line);width:34px;height:32px;border-radius:8px;cursor:pointer;transition:.12s}
+  button:hover{color:var(--ink);border-color:var(--mut)}
+  button.act{color:var(--bad);border-color:rgba(242,85,90,.4)}
+  /* grid */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
   .full{grid-column:1/-1}
-  /* hero */
-  .hero{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;align-items:stretch}
-  .chartwrap{position:relative}
-  .chartwrap svg{width:100%;height:190px;display:block}
-  .edgebig{font-family:var(--mono);font-size:44px;font-weight:700;color:var(--green);line-height:1;letter-spacing:-1px}
-  .edgebig.neg{color:var(--red)}
-  .edgesub{color:var(--dim);font-size:12.5px;margin-top:8px;line-height:1.6}
-  .edgesub b{color:var(--ink)}
-  .vs{display:flex;gap:8px;margin-top:14px}
-  .vs .box{flex:1;border:1px solid var(--line);border-radius:10px;padding:9px 11px}
-  .vs .k{font-size:10.5px;letter-spacing:.4px;color:var(--dim);text-transform:uppercase}
-  .vs .v{font-family:var(--mono);font-size:16px;margin-top:3px}
-  .vs .def .v{color:var(--green)} .vs .naive .v{color:var(--red)}
-  /* RADAR */
-  .radar{display:grid;grid-template-columns:1.5fr 1fr;gap:20px}
-  .vrow{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:12.5px}
-  .vrank{font-family:var(--mono);color:var(--mut);width:22px}
-  .vname{width:104px;color:var(--ink)}
-  .vbar{flex:1;height:9px;border-radius:5px;background:#0a0f16;border:1px solid var(--line);overflow:hidden}
+  .lab{font-size:10.5px;letter-spacing:1.3px;text-transform:uppercase;color:var(--mut);font-weight:600;margin-bottom:14px}
+  /* signal card */
+  .sig{display:grid;grid-template-columns:210px 1fr;gap:24px;align-items:center}
+  .gauge{position:relative;width:210px;height:150px}
+  .gauge svg{width:100%;height:100%}
+  .gauge .num{position:absolute;left:0;right:0;top:52px;text-align:center;font-family:var(--mono);font-size:42px;font-weight:700;line-height:1}
+  .gauge .cap{position:absolute;left:0;right:0;top:104px;text-align:center;font-size:11px;color:var(--dim)}
+  .gauge .drv{position:absolute;left:0;right:0;top:124px;text-align:center;font-family:var(--mono);font-size:12px;color:var(--dim)}
+  .gauge .drv b{color:var(--ink)}
+  /* venue leaderboard */
+  .vrow{display:flex;align-items:center;gap:11px;padding:7px 0;font-size:12.5px}
+  .vrow+.vrow{border-top:1px solid var(--line)}
+  .vname{width:96px;color:var(--ink)}
+  .vbar{flex:1;height:6px;border-radius:4px;background:#0a0f16;overflow:hidden}
   .vbar i{display:block;height:100%}
-  .vbar i.tox{background:linear-gradient(90deg,#d29922,#f85149)}
-  .vbar i.ben{background:linear-gradient(90deg,#1b3a63,#3fb950)}
-  .vbar i.neu{background:var(--mut)}
-  .vbps{font-family:var(--mono);width:58px;text-align:right}
-  .vbps.tox{color:var(--red)} .vbps.ben{color:var(--green)} .vbps.neu{color:var(--dim)}
-  .vmeta{font-family:var(--mono);font-size:11px;color:var(--mut);width:82px;text-align:right}
-  .gaugebig{font-family:var(--mono);font-size:40px;font-weight:700;line-height:1}
-  .gaugelab{font-size:11px;color:var(--dim);margin-top:3px}
-  .gaugetrack{height:10px;border-radius:6px;background:linear-gradient(90deg,#1c5a2a 0%,#d29922 55%,#f85149 100%);position:relative;margin:14px 0 6px}
-  .gaugetrack .mk{position:absolute;top:-4px;width:3px;height:18px;background:var(--ink);border-radius:2px;box-shadow:0 0 6px rgba(230,237,243,.6);transition:left .5s}
-  .derived{font-family:var(--mono);font-size:12.5px;color:var(--dim);margin-top:12px;line-height:1.7}
-  .derived b{color:var(--cyan)}
-  .wrow{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:12px;padding:6px 9px;margin-top:6px;border:1px solid rgba(248,81,73,.25);background:rgba(248,81,73,.06);border-radius:8px}
-  .wrow .addr{color:var(--ink)} .wrow .wb{color:var(--red)} .wrow .wv{color:var(--amber);font-size:11px}
-  /* flow feed */
-  .feed{display:flex;flex-direction:column;gap:0;max-height:340px;overflow:hidden}
-  .row{display:flex;align-items:center;gap:10px;padding:8px 2px;border-bottom:1px solid var(--line);font-size:12.5px}
-  .row.new{animation:slidein .5s ease}
-  @keyframes slidein{from{opacity:0;transform:translateY(-8px);background:rgba(57,211,195,.06)}to{opacity:1;transform:none}}
-  .row .ico{width:20px;text-align:center}
-  .row .who{font-family:var(--mono);color:var(--ink);min-width:96px}
-  .row .act{color:var(--dim);flex:1}
-  .row .act b{color:var(--ink);font-family:var(--mono)}
-  .row .tag{font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:5px;white-space:nowrap}
-  .tag.toll{color:var(--amber);background:rgba(210,153,34,.12)}
-  .tag.block{color:var(--red);background:rgba(248,81,73,.14)}
-  .tag.fair{color:var(--mut)}
-  .row.shark .who{color:var(--red)}
-  /* brain */
-  .kv{display:flex;justify-content:space-between;font-size:12.5px;padding:7px 0;border-bottom:1px solid var(--line)}
-  .kv .k{color:var(--dim)} .kv .v{font-family:var(--mono)}
-  .flag{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:12px;padding:6px 8px;margin-top:6px;border:1px solid rgba(210,153,34,.28);background:rgba(210,153,34,.06);border-radius:8px}
-  .flag .m{color:var(--dim)} .flag .t{color:var(--amber)}
-  /* inventory */
-  .inv{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  .bar{height:9px;border-radius:5px;background:#0a0f16;border:1px solid var(--line);overflow:hidden;display:flex;margin-top:6px}
-  .bar i{display:block;height:100%}
-  .bar .a{background:linear-gradient(90deg,#1c5a2a,var(--green))} .bar .b{background:linear-gradient(90deg,var(--blue),#1b3a63)}
-  .small{font-size:11.5px;color:var(--dim);font-family:var(--mono)}
-  .foot{color:var(--mut);font-size:11px;margin-top:16px;text-align:center;line-height:1.7}
-  @media(max-width:820px){.grid{grid-template-columns:1fr}.hero,.radar{grid-template-columns:1fr}}
+  .vbps{font-family:var(--mono);width:46px;text-align:right}
+  .tox{color:var(--bad)} .ben{color:var(--good)} .neu{color:var(--mut)}
+  i.tox{background:var(--bad)} i.ben{background:var(--good)} i.neu{background:var(--mut)}
+  .live-tag{font-family:var(--mono);font-size:9px;color:var(--live);width:26px}
+  /* watchlist */
+  .watch{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+  .wchip{font-family:var(--mono);font-size:11px;padding:4px 9px;border-radius:6px;border:1px solid rgba(242,85,90,.3);color:var(--dim)}
+  .wchip b{color:var(--bad)}
+  /* venue (defended pool) card */
+  .edge{font-family:var(--mono);font-size:34px;font-weight:700;color:var(--good);line-height:1;letter-spacing:-1px}
+  .edge.neg{color:var(--bad)}
+  .esub{font-size:11px;color:var(--dim);margin-top:5px}
+  .spark{width:100%;height:56px;display:block;margin:12px 0 10px}
+  .pools{display:flex;gap:10px}
+  .pool{flex:1}
+  .pk{font-size:10px;letter-spacing:.4px;text-transform:uppercase;color:var(--dim)}
+  .pv{font-family:var(--mono);font-size:14px;margin-top:2px}
+  .pool.def .pv{color:var(--good)} .pool.naive .pv{color:var(--mut)}
+  .invbar{height:5px;border-radius:3px;background:#0a0f16;overflow:hidden;display:flex;margin-top:6px}
+  .invbar i.a{background:var(--good)} .invbar i.b{background:#2b3a4d}
+  .venue-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .venue-head .n{font-size:12.5px;font-weight:600}
+  .venue-head .s{font-family:var(--mono);font-size:11px;color:var(--dim)}
+  .ghost{opacity:.5;border-style:dashed}
+  .ghost .n{color:var(--dim)}
+  /* flow */
+  .feed{display:flex;flex-direction:column;max-height:260px;overflow:hidden}
+  .frow{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:12.5px}
+  .frow+.frow{border-top:1px solid var(--line)}
+  .frow.new{animation:sl .5s ease}
+  @keyframes sl{from{opacity:0;transform:translateY(-6px)}}
+  .fico{width:18px;text-align:center}
+  .fwho{font-family:var(--mono);color:var(--ink);min-width:92px}
+  .fact{color:var(--dim);flex:1}
+  .fact b{color:var(--ink);font-family:var(--mono)}
+  .frow.shark .fwho{color:var(--bad)}
+  .ftag{font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:5px;white-space:nowrap;color:var(--mut)}
+  .ftag.toll{color:var(--warn)} .ftag.block{color:var(--bad)}
+  .foot{color:var(--mut);font-size:11px;margin-top:20px;text-align:center;font-family:var(--mono)}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}.sig{grid-template-columns:1fr;gap:10px}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="top">
-    <div class="brand">
-      <h1>BAYWATCH <b>RADAR</b> · The Desk</h1>
-      <span>self-defending Aqua market maker · cross-protocol toxic-flow radar on The Graph's standardized DEX-AMM subgraph → 1inch SwapVM opcodes</span>
-    </div>
+    <div class="brand">Baywatch<b>.</b></div>
+    <div class="meta"><span class="dot" id="dot"></span><span id="src">—</span> · <span id="blk">block —</span></div>
+    <span class="chip NORMAL" id="reg">NORMAL</span>
     <div class="spacer"></div>
-    <div class="pill"><span class="dot" id="srcDot"></span><span id="srcLab">radar: —</span></div>
-    <div class="pill"><span class="dot" id="liveDot"></span><span id="blockLab">connecting…</span></div>
-    <div class="pill"><span class="reg NORMAL" id="regLab">NORMAL</span></div>
-    <button id="btnPause" class="warn">⏸ pause</button>
-    <button id="btnAttack" class="danger">🦈 launch attack</button>
-    <button id="btnDepeg" class="danger">⚡ trip breaker</button>
+    <div class="btns">
+      <button id="bPause" title="pause / resume flow">⏸</button>
+      <button id="bAttack" title="launch shark attack">🦈</button>
+      <button id="bDepeg" title="trip / restore circuit breaker">⚡</button>
+    </div>
   </div>
 
-  <!-- RADAR: the cross-protocol signal (the Graph deliverable) -->
+  <!-- THE SIGNAL — one cross-protocol read, shared by every defended venue -->
   <div class="card full" style="margin-bottom:14px">
-    <h2>Cross-protocol toxic-flow radar &nbsp;<em>one standardized DEX-AMM query, fanned across every AMM — adding a venue is zero code</em></h2>
-    <div class="radar">
-      <div>
-        <div id="venues"><div class="small">waiting for radar scan…</div></div>
+    <div class="lab">the signal · one standardized Graph query across every AMM</div>
+    <div class="sig">
+      <div class="gauge">
+        <svg viewBox="0 0 200 165"><path id="gTrack" fill="none" stroke="#1c2530" stroke-width="13" stroke-linecap="round"/><path id="gVal" fill="none" stroke-width="13" stroke-linecap="round"/></svg>
+        <div class="num" id="gNum">—</div>
+        <div class="cap">market toxicity</div>
+        <div class="drv">→ <b id="gSpread">—</b> spread</div>
       </div>
       <div>
-        <div class="gaugebig" id="gaugeNum">—</div>
-        <div class="gaugelab">market toxicity index · notional-weighted adverse-selection markout across all AMMs</div>
-        <div class="gaugetrack"><span class="mk" id="gaugeMk" style="left:0%"></span></div>
-        <div class="derived">
-          drives global spread → <b id="drvSpread">—</b><br/>
-          cross-venue toxic addresses → <b id="drvWatch">0</b> pre-tolled at our pool
-        </div>
-        <div id="watch" style="margin-top:10px"></div>
+        <div id="venues"></div>
+        <div class="watch" id="watch"></div>
       </div>
     </div>
   </div>
 
-  <!-- HERO: the edge -->
-  <div class="card full" style="margin-bottom:14px">
-    <h2>Your edge · defended pool vs a naïve AMM on identical flow</h2>
-    <div class="hero">
-      <div class="chartwrap">
-        <svg id="chart" viewBox="0 0 600 190" preserveAspectRatio="none"></svg>
+  <!-- DEFENDED VENUES — the same signal defending N pools (Aqua now; v4 slots in as a second card) -->
+  <div class="grid" style="margin-bottom:14px">
+    <div class="card" id="venueAqua">
+      <div class="venue-head"><span class="n">1inch Aqua · SwapVM</span><span class="s" id="aquaSpread">—</span></div>
+      <div class="edge" id="edge">+$0</div>
+      <div class="esub" id="esub">earned vs a naïve AMM on identical flow</div>
+      <svg class="spark" id="spark" viewBox="0 0 300 56" preserveAspectRatio="none"></svg>
+      <div class="pools">
+        <div class="pool def"><div class="pk">defended</div><div class="pv" id="defV">—</div><div class="invbar"><i class="a" id="dA"></i><i class="b" id="dB"></i></div></div>
+        <div class="pool naive"><div class="pk">naïve AMM</div><div class="pv" id="naiveV">—</div><div class="invbar"><i class="a" id="nA"></i><i class="b" id="nB"></i></div></div>
       </div>
-      <div>
-        <div class="edgebig" id="edgeBig">+$0</div>
-        <div class="edgesub" id="edgeSub">The defense has earned <b>$0</b> more than a dumb AMM would, on the same flow.</div>
-        <div class="vs">
-          <div class="box def"><div class="k">defended</div><div class="v" id="defVal">—</div></div>
-          <div class="box naive"><div class="k">naïve AMM</div><div class="v" id="naiveVal">—</div></div>
-        </div>
-      </div>
+    </div>
+    <div class="card ghost" id="venueV4">
+      <div class="venue-head"><span class="n">Uniswap v4 · hook</span><span class="s">same oracle</span></div>
+      <div class="esub">The identical signal drives a Uniswap v4 pool through <span class="mono">BaywatchV4Hook</span> — market index → dynamic fee, reputation → per-swapper surcharge. One oracle, keyed by <span class="mono">bytes32</span>, feeds both venues.</div>
     </div>
   </div>
 
-  <div class="grid">
-    <!-- LIVE FLOW -->
-    <div class="card">
-      <h2>Live flow · identical trades to both pools</h2>
-      <div class="feed" id="feed"><div class="small">waiting for trades…</div></div>
-    </div>
-
-    <!-- THE BRAIN -->
-    <div class="card">
-      <h2>The brain · Radar → ParamOracle</h2>
-      <div class="kv"><span class="k">radar source</span><span class="v" id="bSource">—</span></div>
-      <div class="kv"><span class="k">last scan</span><span class="v" id="bScan">—</span></div>
-      <div class="kv"><span class="k">market index</span><span class="v" id="bMarket">—</span></div>
-      <div class="kv"><span class="k">global spread</span><span class="v" id="bSpread">—</span></div>
-      <div class="kv"><span class="k">regime</span><span class="v reg NORMAL" id="bRegime">NORMAL</span></div>
-      <div class="small" style="margin-top:10px">pre-tolled on cross-venue reputation:</div>
-      <div id="flags"></div>
-      <div class="small" style="margin-top:12px">opcodes: <span>_loadParamsXD</span> (spread) · <span>_toxicFlowToll</span> (per-taker) · <span>_depegCircuitBreaker</span> (regime)</div>
-    </div>
-
-    <!-- INVENTORY -->
-    <div class="card full">
-      <h2>Pool inventory</h2>
-      <div class="inv">
-        <div>
-          <div class="small">DEFENDED · <span id="invDefV">—</span></div>
-          <div class="bar"><i class="a" id="invDefA"></i><i class="b" id="invDefB"></i></div>
-          <div class="small" id="invDefTxt" style="margin-top:5px">—</div>
-        </div>
-        <div>
-          <div class="small">NAÏVE · <span id="invNaiveV">—</span></div>
-          <div class="bar"><i class="a" id="invNaiveA"></i><i class="b" id="invNaiveB"></i></div>
-          <div class="small" id="invNaiveTxt" style="margin-top:5px">—</div>
-        </div>
-      </div>
-    </div>
+  <!-- LIVE FLOW -->
+  <div class="card full">
+    <div class="lab">live flow · identical trades to both pools</div>
+    <div class="feed" id="feed"></div>
   </div>
 
-  <div class="foot">
-    Radar: one standardized query (Messari DEX-AMM) fanned across every AMM + Subgraph MCP · agent <span class="mono">radar/signal.mjs → agent/agent.mjs</span> → ParamOracle · two live Aqua pools on anvil, identical flow.
-    <span id="stamp"></span>
-  </div>
+  <div class="foot" id="foot">radar → agent → ParamOracle → SwapVM opcodes</div>
 </div>
 
 <script>
 const $=(id)=>document.getElementById(id);
 const fmt=(n,d=0)=>Number(n).toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d});
 const short=(a)=>a?a.slice(0,6)+"…"+a.slice(-4):"—";
-const ago=(t)=>t?Math.max(0,Math.floor(Date.now()/1000)-t)+"s ago":"never";
-const usd=(n)=>n>=1000?("$"+(n/1000).toFixed(0)+"k"):("$"+fmt(n));
-let lastTradeKey="";
+const usd=(n)=>n>=1000?"$"+(n/1000).toFixed(0)+"k":"$"+fmt(n);
+const ago=(t)=>t?Math.max(0,Math.floor(Date.now()/1000)-t)+"s":"—";
 
-function drawChart(series){
-  const svg=$("chart"), W=600,H=190,pad=6;
-  if(!series||series.length<2){svg.innerHTML='<line x1="0" y1="'+(H-pad)+'" x2="'+W+'" y2="'+(H-pad)+'" stroke="#26364a" stroke-width="1"/>';return;}
-  const edges=series.map(p=>p.edge);
-  const max=Math.max(1,...edges), min=Math.min(0,...edges);
-  const x=(i)=>pad+i*(W-2*pad)/(series.length-1);
-  const y=(v)=>H-pad-(v-min)/(max-min||1)*(H-2*pad);
-  let d="M"+x(0)+","+y(edges[0]);
-  for(let i=1;i<edges.length;i++) d+=" L"+x(i)+","+y(edges[i]);
-  const area=d+" L"+x(edges.length-1)+","+(H-pad)+" L"+x(0)+","+(H-pad)+" Z";
-  const zeroY=y(0);
-  svg.innerHTML=
-    '<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">'+
-    '<stop offset="0%" stop-color="#3fb950" stop-opacity="0.35"/><stop offset="100%" stop-color="#3fb950" stop-opacity="0"/></linearGradient></defs>'+
-    '<line x1="0" y1="'+zeroY+'" x2="'+W+'" y2="'+zeroY+'" stroke="#26364a" stroke-width="1" stroke-dasharray="3 4"/>'+
-    '<path d="'+area+'" fill="url(#g)"/>'+
-    '<path d="'+d+'" fill="none" stroke="#3fb950" stroke-width="2" stroke-linejoin="round"/>'+
-    '<circle cx="'+x(edges.length-1)+'" cy="'+y(edges[edges.length-1])+'" r="3.5" fill="#3fb950"/>';
+// ---- radial gauge (270°) ----
+const polar=(cx,cy,r,deg)=>{const a=(deg-90)*Math.PI/180;return[cx+r*Math.cos(a),cy+r*Math.sin(a)];};
+function arcPath(cx,cy,r,a0,a1){const[x0,y0]=polar(cx,cy,r,a0),[x1,y1]=polar(cx,cy,r,a1);const large=(a1-a0)<=180?0:1;return`M ${x0.toFixed(1)} ${y0.toFixed(1)} A ${r} ${r} 0 ${large} 1 ${x1.toFixed(1)} ${y1.toFixed(1)}`;}
+const CX=100,CY=100,R=80,START=-135,SWEEP=270;
+$("gTrack").setAttribute("d",arcPath(CX,CY,R,START,START+SWEEP));
+function setGauge(pct){
+  const p=Math.max(0,Math.min(100,pct));
+  $("gVal").setAttribute("d",arcPath(CX,CY,R,START,START+SWEEP*p/100));
+  const col=p>60?"var(--bad)":(p>25?"var(--warn)":"var(--good)");
+  $("gVal").setAttribute("stroke",col); $("gNum").style.color=col; $("gNum").textContent=p.toFixed(0);
 }
 
-function renderRadar(b){
-  const src=b.source==="gateway";
-  $("srcDot").className="dot"+(src?" live":"");
-  $("srcLab").textContent="radar: "+(src?"live · gateway":"mock · fixtures");
-  $("bSource").textContent=src?"The Graph gateway":"mock fixtures";
-  // venue leaderboard
-  const vs=b.venues||[];
-  const vmax=Math.max(1,...vs.map(v=>Math.abs(v.toxicityBps)));
-  $("venues").innerHTML = vs.length ? vs.map(v=>{
-    const t=v.toxicityBps, cls=t>1?"tox":(t<-1?"ben":"neu"), w=Math.max(3,Math.abs(t)/vmax*100);
-    return '<div class="vrow"><span class="vrank">#'+v.rank+'</span>'+
-      '<span class="vname">'+v.name+'</span>'+
-      '<div class="vbar"><i class="'+cls+'" style="width:'+w+'%"></i></div>'+
-      '<span class="vbps '+cls+'">'+(t>=0?"+":"")+t.toFixed(1)+'</span>'+
-      '<span class="vmeta">'+usd(v.notionalUsd)+' · '+v.swaps+'</span></div>';
-  }).join("") : '<div class="small">waiting for radar scan…</div>';
-  // gauge
-  const idx=b.marketIndex||0;
-  $("gaugeNum").textContent=idx.toFixed(0);
-  $("gaugeNum").style.color = idx>60?"var(--red)":(idx>25?"var(--amber)":"var(--green)");
-  $("gaugeMk").style.left=Math.max(0,Math.min(100,idx))+"%";
-  $("drvSpread").textContent=(b.spreadPct||0).toFixed(2)+"%";
-  // watchlist (cross-venue toxic addresses)
-  const toxic=(b.watchlist||[]).filter(w=>w.toxic);
-  $("drvWatch").textContent=toxic.length;
-  $("watch").innerHTML = toxic.map(w=>
-    '<div class="wrow"><span class="addr">'+short(w.address)+'</span>'+
-    '<span><span class="wb">'+w.toxicityBps.toFixed(0)+' bps</span> <span class="wv">across '+w.venuesActive+' AMMs</span></span></div>'
-  ).join("");
+function spark(series){
+  const svg=$("spark"),W=300,H=56,p=4;
+  if(!series||series.length<2){svg.innerHTML="";return;}
+  const e=series.map(s=>s.edge),mx=Math.max(1,...e),mn=Math.min(0,...e);
+  const x=i=>p+i*(W-2*p)/(series.length-1), y=v=>H-p-(v-mn)/(mx-mn||1)*(H-2*p);
+  let d="M"+x(0)+","+y(e[0]); for(let i=1;i<e.length;i++)d+=" L"+x(i)+","+y(e[i]);
+  svg.innerHTML='<defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#43c463" stop-opacity=".28"/><stop offset="100%" stop-color="#43c463" stop-opacity="0"/></linearGradient></defs>'
+    +'<line x1="0" y1="'+y(0)+'" x2="'+W+'" y2="'+y(0)+'" stroke="#1c2530" stroke-dasharray="3 4"/>'
+    +'<path d="'+d+' L'+x(e.length-1)+','+(H-p)+' L'+x(0)+','+(H-p)+' Z" fill="url(#sg)"/>'
+    +'<path d="'+d+'" fill="none" stroke="#43c463" stroke-width="2" stroke-linejoin="round"/>';
 }
 
+let lastKey="";
 function render(s){
-  const b=s.brain;
+  const b=s.brain, reg=b.regime||"NORMAL";
   // header
-  $("liveDot").className="dot live";
-  $("blockLab").textContent="block "+(s.status.block||0)+(s.status.paused?" · paused":"");
-  const reg=b.regime||"NORMAL";
-  $("regLab").textContent=reg; $("regLab").className="reg "+reg;
-  $("bRegime").textContent=reg; $("bRegime").className="v reg "+reg;
-  $("btnPause").textContent=s.status.paused?"▶ resume":"⏸ pause";
-  $("btnPause").className=s.status.paused?"warn on":"warn";
-  $("btnAttack").textContent=s.status.attackTicks>0?("🦈 attacking ("+s.status.attackTicks+")"):"🦈 launch attack";
-  $("btnDepeg").textContent=reg==="HALT"?"↩ restore":"⚡ trip breaker";
-
-  renderRadar(b);
-
-  // hero
+  $("dot").className="dot"+(b.source==="gateway"?" on":"");
+  $("src").textContent=b.source==="gateway"?"live · gateway":"mock · fixtures";
+  $("blk").textContent="block "+(s.status.block||0)+(s.status.paused?" · paused":"");
+  $("reg").textContent=reg; $("reg").className="chip "+reg;
+  $("bPause").textContent=s.status.paused?"▶":"⏸";
+  $("bAttack").className=s.status.attackTicks>0?"act":"";
+  $("bDepeg").className=reg==="HALT"?"act":"";
+  // gauge + spread
+  setGauge(b.marketIndex||0);
+  const sp=(b.spreadPct||0).toFixed(1)+"%";
+  $("gSpread").textContent=sp; $("aquaSpread").textContent=sp+" spread";
+  // venue leaderboard
+  const vs=b.venues||[], vmax=Math.max(1,...vs.map(v=>Math.abs(v.toxicityBps)));
+  $("venues").innerHTML=vs.map(v=>{
+    const t=v.toxicityBps, c=t>1?"tox":(t<-1?"ben":"neu"), w=Math.max(3,Math.abs(t)/vmax*100);
+    return '<div class="vrow"><span class="vname">'+v.name+'</span>'
+      +'<span class="live-tag">'+(v.live?"live":"")+'</span>'
+      +'<div class="vbar"><i class="'+c+'" style="width:'+w+'%"></i></div>'
+      +'<span class="vbps '+c+'">'+(t>=0?"+":"")+t.toFixed(0)+'</span></div>';
+  }).join("");
+  // watchlist
+  const tox=(b.watchlist||[]).filter(w=>w.toxic);
+  $("watch").innerHTML=tox.length?tox.map(w=>'<span class="wchip">'+short(w.address)+' · <b>'+w.toxicityBps.toFixed(0)+'bps</b></span>').join(""):'<span class="wchip" style="border-color:var(--line)">no cross-venue sharks</span>';
+  // edge / defended pool
   const edge=s.edge||0;
-  $("edgeBig").textContent=(edge>=0?"+$":"−$")+fmt(Math.abs(edge));
-  $("edgeBig").className="edgebig"+(edge<0?" neg":"");
-  $("edgeSub").innerHTML="The defense has earned <b>"+(edge>=0?"+$":"−$")+fmt(Math.abs(edge))+"</b> more than a dumb AMM would, on the same "+s.trades.length+"+ trades — a "+(b.spreadPct||0).toFixed(2)+"% market-index spread plus per-taker tolls on cross-venue-toxic addresses.";
-  $("defVal").textContent="$"+fmt(s.defValue);
-  $("naiveVal").textContent="$"+fmt(s.naiveValue);
-  drawChart(s.series);
-
-  // flow feed
-  const feed=$("feed");
+  $("edge").textContent=(edge>=0?"+$":"−$")+fmt(Math.abs(edge)); $("edge").className="edge"+(edge<0?" neg":"");
+  $("defV").textContent="$"+fmt(s.defValue); $("naiveV").textContent="$"+fmt(s.naiveValue);
+  spark(s.series);
+  const setInv=(a,bb,eA,eB)=>{const A=Number(a)/1e18,B=Number(bb)/1e18,t=A+B||1;$(eA).style.width=(A/t*100)+"%";$(eB).style.width=(B/t*100)+"%";};
+  setInv(s.reserves.defA,s.reserves.defB,"dA","dB"); setInv(s.reserves.naiveA,s.reserves.naiveB,"nA","nB");
+  // flow
   if(s.trades.length){
-    const key=s.trades[0]?(s.trades[0].block+"-"+s.trades[0].taker+"-"+s.trades[0].amountIn):"";
-    feed.innerHTML=s.trades.map((t,i)=>{
-      const dir=t.tin==="B"?"bought aUSD":"sold aUSD";
-      let tag='<span class="tag fair">fair · spread</span>';
-      if(!t.defOk) tag='<span class="tag block">⨯ blocked</span>';
-      else if(t.tollBps>0) tag='<span class="tag toll">toll '+(t.tollBps/1e7).toFixed(1)+'%</span>';
-      return '<div class="row '+(t.shark?"shark":"")+(i===0&&key!==lastTradeKey?" new":"")+'">'+
-        '<span class="ico">'+(t.shark?"🦈":"✅")+'</span>'+
-        '<span class="who">'+short(t.taker)+'</span>'+
-        '<span class="act">'+dir+' <b>'+fmt(t.amountIn)+'</b></span>'+
-        tag+'</div>';
+    const key=s.trades[0].block+"-"+s.trades[0].taker+"-"+s.trades[0].amountIn;
+    $("feed").innerHTML=s.trades.slice(0,14).map((t,i)=>{
+      let tag='<span class="ftag">fair</span>';
+      if(!t.defOk)tag='<span class="ftag block">blocked</span>'; else if(t.tollBps>0)tag='<span class="ftag toll">toll '+(t.tollBps/1e7).toFixed(1)+'%</span>';
+      return '<div class="frow '+(t.shark?"shark":"")+(i===0&&key!==lastKey?" new":"")+'">'
+        +'<span class="fico">'+(t.shark?"🦈":"✅")+'</span><span class="fwho">'+short(t.taker)+'</span>'
+        +'<span class="fact">'+(t.tin==="B"?"bought":"sold")+' <b>'+fmt(t.amountIn)+'</b></span>'+tag+'</div>';
     }).join("");
-    lastTradeKey=key;
+    lastKey=key;
   }
-
-  // brain
-  $("bScan").textContent=ago(b.lastScan);
-  $("bMarket").textContent=(b.marketIndex||0).toFixed(0)+"/100 ("+(b.marketMarkoutBps||0).toFixed(1)+"bps)";
-  $("bSpread").textContent=(b.spreadPct||0).toFixed(2)+"%";
-  $("flags").innerHTML=b.flagged.length ? b.flagged.map(f=>
-    '<div class="flag"><span>'+short(f.address)+'</span><span><span class="m">'+(f.markoutBps||0).toFixed(0)+'bps · '+(f.venuesActive||0)+' AMMs</span> → <span class="t">'+(f.tollBps/1e7).toFixed(1)+'% toll</span></span></div>'
-  ).join("") : '<div class="small" style="margin-top:6px">none — clean flow</div>';
-
-  // inventory
-  const inv=(a,b2,elA,elB,elV,elT)=>{
-    const A=Number(a)/1e18,B=Number(b2)/1e18,tot=A+B;
-    $(elA).style.width=(A/tot*100)+"%"; $(elB).style.width=(B/tot*100)+"%";
-    $(elV).textContent="$"+fmt(tot); $(elT).textContent="aUSD "+fmt(A)+" · bUSD "+fmt(B);
-  };
-  inv(s.reserves.defA,s.reserves.defB,"invDefA","invDefB","invDefV","invDefTxt");
-  inv(s.reserves.naiveA,s.reserves.naiveB,"invNaiveA","invNaiveB","invNaiveV","invNaiveTxt");
-  $("stamp").textContent="· "+ago(s.now)+" · step "+s.status.step;
+  $("foot").textContent="scan "+ago(b.lastScan)+" ago · "+(b.source==="gateway"?"live Graph data":"mock fixtures")+" · radar → agent → ParamOracle → SwapVM opcodes";
 }
 
-// controls
 const post=(p)=>fetch(p,{method:"POST"}).catch(()=>{});
-$("btnPause").onclick=()=>post($("btnPause").textContent.includes("resume")?"/api/resume":"/api/pause");
-$("btnAttack").onclick=()=>post("/api/attack");
-$("btnDepeg").onclick=()=>post($("btnDepeg").textContent.includes("restore")?"/api/restore":"/api/depeg");
+$("bPause").onclick=()=>post($("bPause").textContent==="▶"?"/api/resume":"/api/pause");
+$("bAttack").onclick=()=>post("/api/attack");
+$("bDepeg").onclick=()=>post($("bDepeg").className==="act"?"/api/restore":"/api/depeg");
 
-// live updates: SSE when it flows, poll watchdog when it stalls.
-let es, lastRenderTs=0;
-function apply(data){
-  try{ render(data); lastRenderTs=Date.now(); }
-  catch(x){ console.error("render failed:",x); $("liveDot").className="dot"; $("blockLab").textContent="render error — see console"; }
-}
-async function pull(){
-  try{ const r=await fetch("/api/state",{cache:"no-store"}); if(r.ok) apply(await r.json()); }catch(x){/* offline; watchdog retries */}
-}
-function connect(){
-  try{
-    es=new EventSource("/api/stream");
-    es.addEventListener("state",(e)=>apply(JSON.parse(e.data)));
-    es.onerror=()=>{ if(es){es.close();es=null;} setTimeout(connect,3000); };
-  }catch(x){/* EventSource unavailable — poll-only mode */}
-}
-pull();
-connect();
-setInterval(()=>{ if(Date.now()-lastRenderTs>2500) pull(); }, 1500);
+let es,last=0;
+const apply=(d)=>{try{render(d);last=Date.now();}catch(x){console.error("render",x);}};
+async function pull(){try{const r=await fetch("/api/state",{cache:"no-store"});if(r.ok)apply(await r.json());}catch(x){}}
+function connect(){try{es=new EventSource("/api/stream");es.addEventListener("state",e=>apply(JSON.parse(e.data)));es.onerror=()=>{if(es){es.close();es=null;}setTimeout(connect,3000);};}catch(x){}}
+pull(); connect();
+setInterval(()=>{if(Date.now()-last>2500)pull();},1500);
 </script>
 </body>
 </html>
