@@ -13,6 +13,8 @@ broadcast/
 ui/desk.json
 ui/laststep.json
 ui/analytics.json
+ui/v4.json
+ui/laststep-v4.json
 
 # Radar — generated signal artifact
 radar/out/
